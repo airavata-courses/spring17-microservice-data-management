@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+	version="2.0">
+	<persistence-unit name="jpa-customer" transaction-type="RESOURCE_LOCAL">
+		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+		<class>edu.iu.customer.service.entity.Customer</class>
+		<class>edu.iu.customer.service.entity.Orders</class>
+		<properties>
+			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+			<property name="openjpa.ConnectionURL"
+				value="jdbc:mysql://localhost:3306/CustomerServiceDB?nullNamePatternMatchesAll=true" />
+			<property name="javax.persistence.jdbc.user" value="root" />
+			<property name="javax.persistence.jdbc.password" value="root" />
+
+			<property name="openjpa.DynamicEnhancementAgent" value="true" />
+			<property name="openjpa.RuntimeUnenhancedClasses" value="supported" />
+			<property name="openjpa.Log" value="SQL=TRACE" />
+			<!-- <property name="openjpa.Log" value="none" /> -->
+			<property name="openjpa.ConnectionFactoryProperties"
+				value="PrettyPrint=true, PrettyPrintLineLength=72, PrintParameters=true, MaxActive=10, MaxIdle=5, MinIdle=2, MaxWait=60000" />
+			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />
+		</properties>
+	</persistence-unit>
+</persistence>
