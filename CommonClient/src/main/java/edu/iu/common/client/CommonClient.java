@@ -21,9 +21,9 @@ public class CommonClient {
 
 	private static final Logger logger = LogManager.getLogger(CommonClient.class);
 	private static CustomerService.Client customerClient;
-	private static OrderService.Client orderClient; 
+	private static OrderService.Client orderClient;
 	private static final Random random = new Random();
-	
+
 	public static void createCustomer(CustomerService.Client customerClient) throws TException {
 		if (customerClient != null) {
 			// generate random customerId
@@ -34,7 +34,7 @@ public class CommonClient {
 			logger.info("Customer creation request submitted!");
 		}
 	}
-	
+
 	public static List<Customer> getCustomers(CustomerService.Client customerClient) throws TException {
 		List<Customer> customerList = new ArrayList<>();
 		if (customerClient != null) {
@@ -43,7 +43,7 @@ public class CommonClient {
 		}
 		return customerList;
 	}
-	
+
 	public static void createOrder(OrderService.Client orderClient, CustomerService.Client customerClient) throws TException {
 		if (orderClient != null) {
 			// get customer list and use first record
@@ -55,8 +55,8 @@ public class CommonClient {
 					int orderId = random.nextInt(999999999);
 					logger.info("Creating order with ID: " + orderId);
 					edu.iu.order.service.model.Customer customer = new edu.iu.order.service.model.Customer(
-							customerList.get(0).getId(), 
-							customerList.get(0).getCustomerName(), 
+							customerList.get(0).getId(),
+							customerList.get(0).getCustomerName(),
 							customerList.get(0).getCreditLimit());
 					Orders order = new Orders(orderId, 2500, "CREATED", customer);
 					orderClient.createOrder(order);
@@ -67,7 +67,7 @@ public class CommonClient {
 			}
 		}
 	}
-	
+
 	public static List<Orders> getOrdersForCustomer(OrderService.Client orderClient, String customerId) throws TException {
 		List<Orders> orders = new ArrayList<>();
 		if (orderClient != null) {
@@ -76,26 +76,47 @@ public class CommonClient {
 		}
 		return orders;
 	}
-	
+
 	public static void main(String[] args) {
+		if(args.length != 1){
+			System.out.println("Please provide any one of the services you want to invoke.\n  --customer \n  --order");
+			return;
+		}
+		if(args.length  > 1){
+			System.out.println("Please provide any one of the services you want to invoke.\n  --customer \n  --order");
+			return;
+		}
+		if(!args[0].equalsIgnoreCase("order") && !args[0].equalsIgnoreCase("customer")){
+			System.out.println("Please provide valid service name.\n  --customer \n  --order");
+			return;
+		}
 		TTransport transportOrder = new TSocket("127.0.0.1", 9090);
 		TTransport transportCustomer = new TSocket("127.0.0.1", 9091);
-		
+
 		try {
 			logger.info("Opening transport for Customer & Order");
 			//transportOrder.open();
 			transportCustomer.open();
-			
+
 			TProtocol protocolCustomer = new TBinaryProtocol(transportCustomer);
 			TProtocol protocolOrder = new TBinaryProtocol(transportOrder);
-			
+
 			customerClient = new CustomerService.Client(protocolCustomer);
 			orderClient = new OrderService.Client(protocolOrder);
-			
-			// create customer test
-			createCustomer(customerClient);
-			// create order test
-			//createOrder(orderClient, customerClient);
+
+
+			if(args[0].equalsIgnoreCase("customer")){
+				// create customer test
+				createCustomer(customerClient);
+				return;
+			}
+
+			if(args[0].equalsIgnoreCase("order")){
+				// create order test
+				createOrder(orderClient, customerClient);
+				return;
+			}
+
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 		} finally {
