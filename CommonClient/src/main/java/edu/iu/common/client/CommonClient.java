@@ -94,9 +94,6 @@ public class CommonClient {
 		TTransport transportCustomer = new TSocket("127.0.0.1", 9091);
 
 		try {
-			logger.info("Opening transport for Customer & Order");
-			//transportOrder.open();
-			transportCustomer.open();
 
 			TProtocol protocolCustomer = new TBinaryProtocol(transportCustomer);
 			TProtocol protocolOrder = new TBinaryProtocol(transportOrder);
@@ -107,12 +104,17 @@ public class CommonClient {
 
 			if(args[0].equalsIgnoreCase("customer")){
 				// create customer test
+				logger.info("Opening transport for Customer");
+				transportCustomer.open();
 				createCustomer(customerClient);
 				return;
 			}
 
 			if(args[0].equalsIgnoreCase("order")){
 				// create order test
+				logger.info("Opening transport for Order");
+				transportCustomer.open();
+				transportOrder.open();
 				createOrder(orderClient, customerClient);
 				return;
 			}
