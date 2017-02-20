@@ -29,7 +29,6 @@ public class EntityDAOImpl implements EntityDAO {
 	Logger logger = LogManager.getLogger(EntityDAOImpl.class);
 	
 	private Publisher orderPublisher;
-	@SuppressWarnings("unused")
 	private Subscriber customerSubscriber;
 
 	public EntityDAOImpl(){
