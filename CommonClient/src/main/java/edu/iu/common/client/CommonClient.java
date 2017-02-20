@@ -44,26 +44,21 @@ public class CommonClient {
 		return customerList;
 	}
 
-	public static void createOrder(OrderService.Client orderClient, CustomerService.Client customerClient) throws TException {
+	public static void createOrder(OrderService.Client orderClient) throws TException {
 		if (orderClient != null) {
 			// get customer list and use first record
-			if (customerClient != null) {
-				logger.info("Getting customer list");
-				List<Customer> customerList = customerClient.getCustomers();
-				if (!customerList.isEmpty()) {
-					// generate random orderId
-					int orderId = random.nextInt(999999999);
-					logger.info("Creating order with ID: " + orderId);
-					edu.iu.order.service.model.Customer customer = new edu.iu.order.service.model.Customer(
-							customerList.get(0).getId(),
-							customerList.get(0).getCustomerName(),
-							customerList.get(0).getCreditLimit());
-					Orders order = new Orders(orderId, 2500, "CREATED", customer);
-					orderClient.createOrder(order);
-					logger.info("Order creation request submitted!");
-				} else {
-					throw new TException("No Customers in DB; Cannot create Order");
-				}
+			logger.info("Getting customer list");
+			List<edu.iu.order.service.model.Customer> customerList = orderClient.getCustomers();
+			if (!customerList.isEmpty()) {
+				// generate random orderId
+				int orderId = random.nextInt(999999999);
+				logger.info("Creating order with ID: " + orderId);
+				edu.iu.order.service.model.Customer customer = customerList.get(0);
+				Orders order = new Orders(orderId, 2500, "CREATED", customer);
+				orderClient.createOrder(order);
+				logger.info("Order creation request submitted!");
+			} else {
+				throw new TException("No Customers in DB; Cannot create Order");
 			}
 		}
 	}
@@ -113,9 +108,8 @@ public class CommonClient {
 			if(args[0].equalsIgnoreCase("order")){
 				// create order test
 				logger.info("Opening transport for Order");
-				transportCustomer.open();
 				transportOrder.open();
-				createOrder(orderClient, customerClient);
+				createOrder(orderClient);
 				return;
 			}
 

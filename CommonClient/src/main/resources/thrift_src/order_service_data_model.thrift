@@ -22,4 +22,5 @@ exception OperationFailedException {
 service OrderService {
 	list<Orders> getOrdersForCustomer(1: string customerId) throws (1: OperationFailedException ex);
 	void createOrder(1: Orders order) throws (1: OperationFailedException ex);
+	list<Customer> getCustomers() throws (1: OperationFailedException ex);
 }
