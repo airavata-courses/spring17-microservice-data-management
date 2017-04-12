@@ -31,5 +31,6 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.1" level="project" />
     <orderEntry type="module" module-name="RabbitMQ" />
     <orderEntry type="library" name="Maven: com.rabbitmq:amqp-client:3.5.5" level="project" />
+    <orderEntry type="module" module-name="CustomerService" />
   </component>
 </module>

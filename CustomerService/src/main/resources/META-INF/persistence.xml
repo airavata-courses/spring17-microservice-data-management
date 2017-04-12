@@ -12,12 +12,11 @@
 			<property name="openjpa.ConnectionURL"
 				value="jdbc:mysql://localhost:3306/CustomerServiceDB?nullNamePatternMatchesAll=true" />
 			<property name="javax.persistence.jdbc.user" value="root" />
-			<property name="javax.persistence.jdbc.password" value="****" />
+			<property name="javax.persistence.jdbc.password" value="password" />
 
 			<property name="openjpa.DynamicEnhancementAgent" value="true" />
 			<property name="openjpa.RuntimeUnenhancedClasses" value="supported" />
 			<property name="openjpa.Log" value="SQL=TRACE" />
-			<!-- <property name="openjpa.Log" value="none" /> -->
 			<property name="openjpa.ConnectionFactoryProperties"
 				value="PrettyPrint=true, PrettyPrintLineLength=72, PrintParameters=true, MaxActive=10, MaxIdle=5, MinIdle=2, MaxWait=60000" />
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />

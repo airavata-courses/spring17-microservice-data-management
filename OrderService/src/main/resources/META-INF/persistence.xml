@@ -12,7 +12,7 @@
 			<property name="openjpa.ConnectionURL"
 				value="jdbc:mysql://localhost:3306/OrderServiceDB?nullNamePatternMatchesAll=true" />
 			<property name="javax.persistence.jdbc.user" value="root" />
-			<property name="javax.persistence.jdbc.password" value="****" />
+			<property name="javax.persistence.jdbc.password" value="password" />
 
 			<property name="openjpa.DynamicEnhancementAgent" value="true" />
 			<property name="openjpa.RuntimeUnenhancedClasses" value="supported" />
