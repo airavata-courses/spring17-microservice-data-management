@@ -89,7 +89,6 @@
             <configuration>
               <generator>java</generator>
               <outputDirectory>bin</outputDirectory>
-              <compileOutput>true</compileOutput>
             </configuration>
           </execution>
         </executions>

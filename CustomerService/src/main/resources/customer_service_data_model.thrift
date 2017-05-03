@@ -22,4 +22,6 @@ exception OperationFailedException {
 service CustomerService {
 	list<Customer> getCustomers() throws (1: OperationFailedException ex);
 	void createCustomer(1: Customer customer) throws (1: OperationFailedException ex);
+	integer prepareOrder(1: Orders order) throws (1: OperationFailedException ex);
+	integer commitOrder(1: Orders order) throws (1: OperationFailedException ex);
 }

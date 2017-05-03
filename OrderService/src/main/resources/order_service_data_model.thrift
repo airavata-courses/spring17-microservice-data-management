@@ -23,4 +23,6 @@ service OrderService {
 	list<Orders> getOrdersForCustomer(1: string customerId) throws (1: OperationFailedException ex);
 	void createOrder(1: Orders order) throws (1: OperationFailedException ex);
 	list<Customer> getCustomers() throws (1: OperationFailedException ex);
+	integer prepareCustomer(1: Customer customer) throws (1: OperationFailedException ex);
+	integer commitCustomer(1: Customer customer) throws (1: OperationFailedException ex);
 }

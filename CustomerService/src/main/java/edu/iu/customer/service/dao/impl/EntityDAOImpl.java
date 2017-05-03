@@ -1,6 +1,5 @@
 package edu.iu.customer.service.dao.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -9,6 +8,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
+import edu.iu.customer.service.model.OrderService;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -16,32 +16,24 @@ import edu.iu.customer.service.adapter.JPAThriftAdapter;
 import edu.iu.customer.service.dao.EntityDAO;
 import edu.iu.customer.service.entity.Customer;
 import edu.iu.customer.service.entity.Orders;
-import edu.iu.customer.service.handler.OrderMessageHandler;
-import edu.iu.messaging.service.util.MessageContext;
-import edu.iu.messaging.service.core.MessagingFactory;
-import edu.iu.messaging.service.core.Publisher;
-import edu.iu.messaging.service.core.Subscriber;
-import edu.iu.messaging.service.util.Constants;
-import edu.iu.messaging.service.util.Type;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.transport.TSocket;
+import edu.iu.customer.service.utils.ThriftConstants;
 
 public class EntityDAOImpl implements EntityDAO {
 
 	Logger logger = LogManager.getLogger(EntityDAOImpl.class);
-	private Publisher customerPublisher;
-	private Subscriber orderSubscriber;
-	
-	public EntityDAOImpl() {
-		customerPublisher = MessagingFactory.getPublisher(Type.CUSTOMER);
-		orderSubscriber = MessagingFactory.getSubscriber(new OrderMessageHandler(), getRoutingKeys(), Type.ORDER);
-	}
-	
-	public List<String> getRoutingKeys(){
-		return new ArrayList<String>(){/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
 
-		{add(Constants.ORDER_ROUTING_KEY);}};
+	private OrderService.Client orderClient;
+
+	public EntityDAOImpl() {
+		TSocket tSocket = new TSocket(ThriftConstants.ORDER_SERVICE_THRIFT_IP, ThriftConstants.ORDER_SERVICE_THRIFT_PORT);
+		orderClient = new OrderService.Client(new TBinaryProtocol(tSocket));
+		try {
+			tSocket.open();
+		} catch ( Exception e){
+			logger.info("Open Exception for tSocket : " + e.getMessage());
+		}
 	}
 	
 	@Override
@@ -62,7 +54,6 @@ public class EntityDAOImpl implements EntityDAO {
 			em.merge(entity);
 
 			logger.info("saveEntity() -> Sending ack. Delivery Tag : " + deliveryTag);
-			orderSubscriber.sendAck(deliveryTag);
 
 			// Committing transaction.
 			tx.commit();
@@ -77,7 +68,15 @@ public class EntityDAOImpl implements EntityDAO {
 			throw ex;
 		}
 	}
-	
+
+	public void prepareEntity(Object entity, long deliveryTag) throws Exception {
+		try{
+
+		} catch (Exception ex) {
+			logger.error("Error persisting entity in database. Error: " + ex.getMessage(), ex);
+			throw ex;
+		}
+	}
 	
 
 	@SuppressWarnings("unchecked")
@@ -156,15 +155,25 @@ public class EntityDAOImpl implements EntityDAO {
 			logger.info("Saving customer in database. Customer: " + customer);
 			tx.begin();
 			em.persist(JPAThriftAdapter.getCustomerJPAEntity(customer));
-			
-			// Publish message
-			logger.info("Publishing new customer to outside world: " + customer);
-			MessageContext mctx = new MessageContext(customer, customer.getCustomerName());
-			customerPublisher.publish(mctx);
+			int res = orderClient.prepareCustomer(customer);
+			if( res == -1){
+				logger.info("DB phase 1 failure; closing connections now!");
+				logger.info("DB phase 1 failure;RESULT:" + res);
+				tx.rollback();
+				return;
+			}
+			logger.info("DB phase 1 success; closing connections now!");
+
+			if(orderClient.commitCustomer(customer) == -1){
+				logger.info("DB phase 2 failure; closing connections now!");
+				tx.rollback();
+				return;
+			}
+			logger.info("DB phase 2 success; closing connections now!");
 
 			// Committing transaction.
 			tx.commit();
-			logger.info("DB persist successful; closing connections now!");
+			logger.info("DB commit successful; closing connections now!");
 		} catch (Exception ex) {
 			logger.error("Error persisting entity in database, Rolling back. Error: " + ex.getMessage(), ex);
 			tx.rollback();
@@ -175,43 +184,4 @@ public class EntityDAOImpl implements EntityDAO {
 			emf.close();
 		}
 	}
-	
-//	public static void main(String[] args) {
-////		EntityDAO dao = new EntityDAOImpl();
-//		
-//		// create customer
-//		Customer customer = new Customer();
-//		customer.setID(0000001);
-//		customer.setCustomerName("Customer-B");
-//		customer.setCreditLimit(5000);
-//		
-//		EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-customer");;
-//		EntityManager em = emf.createEntityManager();
-//		// persist in db
-//		EntityTransaction tx = em.getTransaction();
-//		
-//		try {
-//			tx.begin();
-//			em.merge(customer);
-//			System.out.println("Submitted merge req, but not commited tx.");
-//			tx.commit();
-////			dao.saveEntity(customer);
-////			System.out.println("Customer record saved!");
-//			
-//			// get list of customers
-////			List<Customer> customers = dao.getCustomers();
-////			System.out.println("* Customers JPA List: " + customers);
-////			System.out.println("* Printing Customers Thrift List: " + (customers.isEmpty() ? "empty" : ""));
-////			for (Customer customer : customers) {
-////				System.out.println("\t" + JPAThriftAdapter.getCustomerThriftDM(customer));
-////			}
-//		} catch (Exception ex) {
-//			System.err.println("Exception occured: " + ex);
-//			System.out.println("Rolling-back tx.");
-//			tx.rollback();
-//		} finally {
-//			em.close();
-//			emf.close();
-//		}
-//	}
 }

@@ -14,4 +14,8 @@ public interface EntityDAO {
 	public List<Orders> getOrdersForCustomer(Integer customerId) throws Exception;
 	
 	public void createOrder(edu.iu.order.service.model.Orders order) throws Exception;
+
+	public int prepareCustomer(edu.iu.order.service.model.Customer entity, long deliveryTag) throws Exception;
+
+	public int commitCustomer(edu.iu.order.service.model.Customer entity, long deliveryTag) throws Exception;
 }

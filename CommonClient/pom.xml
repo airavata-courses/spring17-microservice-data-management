@@ -104,7 +104,6 @@
 						<configuration>
 							<generator>java</generator>
 							<outputDirectory>bin</outputDirectory>
-							<compileOutput>true</compileOutput>
 						</configuration>
 						<goals>
 							<goal>compile</goal>

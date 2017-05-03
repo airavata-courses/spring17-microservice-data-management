@@ -77,4 +77,24 @@ public class OrderServiceHandler implements OrderService.Iface{
 		logger.info("Returning list (thrift converted");
 		return customers;
 	}
+
+	@Override
+	public int prepareCustomer(Customer customer) throws OperationFailedException, TException {
+		try{
+			return DAO.prepareCustomer(customer, 1);
+		} catch (Exception ex) {
+			logger.error("prepareCustomer | exception: " + ex.getMessage(), ex);
+		}
+		return -1;
+	}
+
+	@Override
+	public int commitCustomer(Customer customer) throws OperationFailedException, TException {
+		try{
+			return DAO.commitCustomer(customer, 1);
+		} catch (Exception ex) {
+			logger.error("commitCustomer | exception: " + ex.getMessage(), ex);
+		}
+		return -1;
+	}
 }
